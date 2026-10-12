@@ -1,0 +1,32 @@
+{
+  "name": "smartattend",
+  "version": "0.2.0",
+  "private": true,
+  "description": "Smart attendance via rotating QR codes, with proxy-marking defences.",
+  "type": "module",
+  "workspaces": [
+    "server",
+    "web"
+  ],
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "dev": "concurrently -n server,web,ml -c blue,green,magenta \"npm run dev -w server\" \"npm run dev -w web\" \"npm run dev:ml\"",
+    "dev:https": "concurrently -n server,web,ml -c blue,green,magenta \"npm run dev -w server\" \"npm run dev:https -w web\" \"npm run dev:ml\"",
+    "dev:ml": "node scripts/py.mjs --optional -m uvicorn app:app --host 127.0.0.1 --port 8001",
+    "train": "node scripts/py.mjs train_proxy.py && node scripts/py.mjs train_atrisk.py",
+    "build": "npm run build -w web",
+    "start": "npm run start -w server",
+    "seed": "npm run seed -w server",
+    "test": "npm run test -w server && npm run test -w web",
+    "test:ml": "node scripts/py.mjs -m pytest -q",
+    "test:all": "npm run test && npm run test:ml",
+    "e2e": "node --disable-warning=ExperimentalWarning --test --test-concurrency=1 --test-timeout=320000 \"e2e/*.e2e.mjs\"",
+    "e2e:camera": "node --disable-warning=ExperimentalWarning e2e/real-camera.mjs"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.5",
+    "playwright-core": "^1.64.0"
+  }
+}

@@ -1,0 +1,237 @@
+{
+  "version": "proxy-lr-de5d9fc8",
+  "trained_on": "2026-10-09",
+  "libraries": {
+    "python": "3.13.7",
+    "scikit_learn": "1.9.1",
+    "numpy": "2.5.3"
+  },
+  "data": {
+    "synthetic": true,
+    "statement": "Trained and tested on SYNTHETIC scans generated from written-down assumptions. No real attendance or proxy-marking data was used. These numbers describe the method in an invented world, not accuracy on real classes.",
+    "seeds": {
+      "train": 2037,
+      "val": 2038,
+      "test": 2039
+    },
+    "sizes": {
+      "train": 40000,
+      "validation": 15000,
+      "test": 15000
+    },
+    "proxy_prior": 0.08,
+    "assumptions": [
+      "8% of scans are proxy marks; the rest are honest.",
+      "25% of scans come from lectures with the location check off (location features are then neutral).",
+      "30% of scans have a face distance; the rest have none (a 'missing' flag, which carries no label information).",
+      "Honest students are 0 to about 150 m from the room centre (half-normal, sigma 35 m); GPS error is a 2-D normal with sigma = accuracy / 2.",
+      "Good phone fixes have accuracy near 12 m (lognormal, 3 to 40 m); poor indoor fixes 40 to 150 m, with a tail to 800 m.",
+      "Honest students scan at any moment of the code's 55 to 60 s on-screen life (so timing alone says little); at lecture start they scan within 15 s.",
+      "A relayed QR photo arrives late in the code's life (beta-shaped, peaking around 35 s) and the relaying student is often outside or in the corridor.",
+      "6% of honest students deny location; 30% of proxies do.",
+      "Face distance (128-number descriptors): same person about 0.40 +- 0.08, with 4% of honest scans mismatching (glasses, light); a different person about 0.78 +- 0.09. These values are assumptions to be re-measured with real enrolments.",
+      "Hard negatives: poor-GPS honest scans, honest lecture-start bursts on shared Wi-Fi, honest shared phones.",
+      "The 'second_phone_in_room' proxy is detectable mainly through device history, because their location looks right."
+    ]
+  },
+  "features": [
+    "token_age",
+    "excess_distance",
+    "gps_error",
+    "location_missing",
+    "device_shared",
+    "new_device",
+    "scan_burst",
+    "face_distance",
+    "face_missing"
+  ],
+  "honest_false_review_cap": 0.03,
+  "threshold": 0.269865,
+  "test": {
+    "model": "logistic_regression",
+    "roc_auc": 0.9043,
+    "pr_auc": 0.6758,
+    "threshold": 0.2699,
+    "false_review_rate": 0.0301,
+    "recall": 0.5998,
+    "precision": 0.6327,
+    "flagged_share": 0.0753
+  },
+  "benchmark": [
+    {
+      "model": "logistic_regression",
+      "roc_auc": 0.9043,
+      "pr_auc": 0.6758,
+      "threshold": 0.2699,
+      "false_review_rate": 0.0301,
+      "recall": 0.5998,
+      "precision": 0.6327,
+      "flagged_share": 0.0753
+    },
+    {
+      "model": "random_forest",
+      "roc_auc": 0.9515,
+      "pr_auc": 0.7946,
+      "threshold": 0.2365,
+      "false_review_rate": 0.0277,
+      "recall": 0.6946,
+      "precision": 0.6837,
+      "flagged_share": 0.0807
+    },
+    {
+      "model": "gradient_boosting",
+      "roc_auc": 0.9579,
+      "pr_auc": 0.809,
+      "threshold": 0.2238,
+      "false_review_rate": 0.0296,
+      "recall": 0.7173,
+      "precision": 0.6764,
+      "flagged_share": 0.0843
+    }
+  ],
+  "rules_only_baseline": {
+    "false_review_rate": 0.1512,
+    "recall": 0.729,
+    "flagged_share": 0.1971,
+    "note": "The server's rules alone (location grey zone beyond 150 m, imprecise or missing location, a device used by another student), on the same test scans."
+  },
+  "rules_and_model_together": {
+    "false_review_rate": 0.1605,
+    "recall": 0.7861,
+    "flagged_share": 0.2102,
+    "note": "The server sends a scan to review if the rules OR the model flag it. Most honest scans reviewed here come from the rules (a missing or imprecise location, a phone used by another student)."
+  },
+  "matched_budget": {
+    "false_review_budget": 0.1478,
+    "model_recall": 0.8163,
+    "model_false_review_rate": 0.1514,
+    "rules_recall": 0.729,
+    "rules_false_review_rate": 0.1512,
+    "note": "The model given the same share of honest scans sent to review as the rules use. Budget and threshold come from validation data."
+  },
+  "development_notes": [
+    "Logistic regression ships for its readable reasons. Gradient boosting scores higher in this synthetic world (see the benchmark); the gap is the price of explanations.",
+    "Extra features (a lecture-start burst indicator, new device x shared device, late-scan curvature, a face distance above 0.55) were tried on the validation split. The best combination gained about 5 points of recall at the 3% cap and none closed the gap, so they were not adopted: gains that small on invented data are as likely to fit the generator as the problem.",
+    "Honest students with a new phone or a phone shared with a flatmate are flagged far more often than other honest students (see scenarios). They go to a review queue, never to rejection."
+  ],
+  "scenarios": [
+    {
+      "scenario": "honest_good_gps",
+      "kind": "honest",
+      "n": 7682,
+      "flagged_rate": 0.0152
+    },
+    {
+      "scenario": "honest_poor_gps",
+      "kind": "honest",
+      "n": 2741,
+      "flagged_rate": 0.0197
+    },
+    {
+      "scenario": "honest_burst",
+      "kind": "honest",
+      "n": 2054,
+      "flagged_rate": 0.001
+    },
+    {
+      "scenario": "honest_new_phone",
+      "kind": "honest",
+      "n": 642,
+      "flagged_rate": 0.1495
+    },
+    {
+      "scenario": "honest_shared_phone",
+      "kind": "honest",
+      "n": 417,
+      "flagged_rate": 0.3357
+    },
+    {
+      "scenario": "honest_other",
+      "kind": "honest",
+      "n": 272,
+      "flagged_rate": 0.0221
+    },
+    {
+      "scenario": "relay_outside",
+      "kind": "proxy",
+      "n": 535,
+      "flagged_rate": 0.7047
+    },
+    {
+      "scenario": "relay_nearby",
+      "kind": "proxy",
+      "n": 303,
+      "flagged_rate": 0.4224
+    },
+    {
+      "scenario": "second_phone_in_room",
+      "kind": "proxy",
+      "n": 354,
+      "flagged_rate": 0.5932
+    }
+  ],
+  "coefficients": [
+    {
+      "feature": "token_age",
+      "coefficient": 0.3964,
+      "training_mean": 0.3879,
+      "training_spread": 0.267
+    },
+    {
+      "feature": "excess_distance",
+      "coefficient": 0.8864,
+      "training_mean": 1.4045,
+      "training_spread": 1.7754
+    },
+    {
+      "feature": "gps_error",
+      "coefficient": 0.299,
+      "training_mean": 3.0092,
+      "training_spread": 0.806
+    },
+    {
+      "feature": "location_missing",
+      "coefficient": 0.6689,
+      "training_mean": 0.0597,
+      "training_spread": 0.237
+    },
+    {
+      "feature": "device_shared",
+      "coefficient": 0.5904,
+      "training_mean": 0.0925,
+      "training_spread": 0.3876
+    },
+    {
+      "feature": "new_device",
+      "coefficient": 0.4382,
+      "training_mean": 0.0852,
+      "training_spread": 0.2792
+    },
+    {
+      "feature": "scan_burst",
+      "coefficient": -0.3284,
+      "training_mean": 0.8216,
+      "training_spread": 0.7954
+    },
+    {
+      "feature": "face_distance",
+      "coefficient": 1.4173,
+      "training_mean": 0.4463,
+      "training_spread": 0.0738
+    },
+    {
+      "feature": "face_missing",
+      "coefficient": 0.9279,
+      "training_mean": 0.7022,
+      "training_spread": 0.4573
+    }
+  ],
+  "intercept": -3.8975,
+  "limits": [
+    "A proxy who is physically in the room and uses a second phone is caught mainly through device history; recall for that scenario is low.",
+    "Timing is a weak signal: honest students scan at any moment while a code is on screen.",
+    "GPS can be spoofed and a web page cannot detect it; the model only sees what the browser reports.",
+    "Face distance has no liveness check, so a photo of a face can pass.",
+    "The score is a risk score under the synthetic prior, not the probability that a real student cheated. It only orders scans for a human to review."
+  ]
+}

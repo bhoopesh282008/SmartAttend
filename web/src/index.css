@@ -1,0 +1,68 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    @apply bg-slate-50 text-slate-900 antialiased;
+    font-variant-numeric: tabular-nums;
+  }
+  :focus-visible {
+    outline: 2px solid #0f172a;
+    outline-offset: 2px;
+  }
+  button,
+  a,
+  input,
+  select {
+    touch-action: manipulation;
+  }
+  button:disabled {
+    cursor: not-allowed;
+  }
+}
+
+@layer components {
+  .card {
+    @apply rounded-lg border border-slate-200 bg-white;
+  }
+  .btn {
+    @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-md border px-4 text-sm font-medium transition-colors disabled:opacity-50;
+  }
+  .btn-primary {
+    @apply btn border-slate-900 bg-slate-900 text-white hover:bg-slate-700;
+  }
+  .btn-secondary {
+    @apply btn border-slate-300 bg-white text-slate-900 hover:bg-slate-100;
+  }
+  .btn-danger {
+    @apply btn border-blocked-line bg-white text-blocked hover:bg-blocked-soft;
+  }
+  .btn-sm {
+    @apply min-h-9 px-3 text-sm;
+  }
+  .field {
+    @apply min-h-11 w-full rounded-md border border-slate-300 bg-white px-3 text-sm placeholder:text-slate-400;
+  }
+  .label {
+    @apply mb-1 block text-sm font-medium text-slate-700;
+  }
+  /* The QR is drawn as an SVG that fills its box. */
+  .qr-box svg {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

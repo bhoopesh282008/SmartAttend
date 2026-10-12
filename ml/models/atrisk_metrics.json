@@ -1,0 +1,218 @@
+{
+  "version": "atrisk-lr-6fee42a4",
+  "trained_on": "2026-10-09",
+  "libraries": {
+    "python": "3.13.7",
+    "scikit_learn": "1.9.1",
+    "numpy": "2.5.3"
+  },
+  "data": {
+    "synthetic": true,
+    "statement": "Trained and tested on SYNTHETIC student terms generated from written-down assumptions. No real attendance records were used. These numbers describe the method in an invented world, not accuracy on real classes.",
+    "seeds": {
+      "train": 2047,
+      "val": 2048,
+      "test": 2049
+    },
+    "sizes": {
+      "train": 6000,
+      "test": 4000
+    },
+    "split": "by student: each student appears in exactly one set",
+    "leakage_control": "features use only lectures already held; the label (finishes below 75%) comes from the full term",
+    "prevalence_test": 0.314,
+    "assumptions": [
+      "Terms have 30 to 45 planned lectures; the model is shown a random snapshot 15% to 60% of the way through.",
+      "Base attendance tendency theta ~ Beta(10, 1.8) (about a third of students finish below 75%); a drift in log-odds over the term ~ Normal(0, 0.6).",
+      "After a missed lecture the chance of attending is cut by 25% to 60%, more for low-tendency students (absences cluster).",
+      "Lateness: a student who attends is late with probability 0.04 + 0.35 x (1 - theta).",
+      "Scans held for review or blocked: about 0.05 + 0.5 x (1 - theta) per 10 lectures.",
+      "Label: finishes the term below 75% of the planned lectures."
+    ]
+  },
+  "features": [
+    "pct_so_far",
+    "pct_last3",
+    "trend",
+    "longest_absence_streak",
+    "current_absence_streak",
+    "late_share",
+    "flags_per_10",
+    "progress",
+    "slack_fraction"
+  ],
+  "bands": {
+    "high_from": 0.6,
+    "watch_from": 0.35
+  },
+  "test": {
+    "roc_auc": 0.8985,
+    "pr_auc": 0.8339,
+    "brier": 0.113,
+    "top15": {
+      "precision": 0.9283,
+      "recall": 0.4435
+    },
+    "roc_auc_still_reachable": 0.8885,
+    "share_still_reachable": 0.972,
+    "calibration": [
+      {
+        "predicted": 0.026,
+        "actual": 0.021,
+        "n": 800
+      },
+      {
+        "predicted": 0.07,
+        "actual": 0.068,
+        "n": 800
+      },
+      {
+        "predicted": 0.166,
+        "actual": 0.182,
+        "n": 800
+      },
+      {
+        "predicted": 0.431,
+        "actual": 0.443,
+        "n": 800
+      },
+      {
+        "predicted": 0.863,
+        "actual": 0.856,
+        "n": 800
+      }
+    ],
+    "bands": {
+      "low": {
+        "share_of_students": 0.663,
+        "finished_below_75": 0.109
+      },
+      "watch": {
+        "share_of_students": 0.1192,
+        "finished_below_75": 0.4864
+      },
+      "high": {
+        "share_of_students": 0.2177,
+        "finished_below_75": 0.8439
+      }
+    },
+    "by_progress": [
+      {
+        "snapshot": "early (under 30% of term)",
+        "n": 1335,
+        "roc_auc": 0.8523
+      },
+      {
+        "snapshot": "middle (30% to 45%)",
+        "n": 1306,
+        "roc_auc": 0.889
+      },
+      {
+        "snapshot": "later (over 45%)",
+        "n": 1359,
+        "roc_auc": 0.944
+      }
+    ]
+  },
+  "comparison": [
+    {
+      "method": "logistic regression (ships)",
+      "roc_auc": 0.8985,
+      "roc_auc_still_reachable": 0.8885,
+      "top15": {
+        "precision": 0.9283,
+        "recall": 0.4435
+      }
+    },
+    {
+      "method": "gradient boosting",
+      "roc_auc": 0.8766,
+      "roc_auc_still_reachable": 0.8645,
+      "top15": {
+        "precision": 0.8883,
+        "recall": 0.4244
+      }
+    },
+    {
+      "method": "rule: attendance so far below 75%",
+      "roc_auc": 0.8803,
+      "roc_auc_still_reachable": 0.8689,
+      "top15": {
+        "precision": 0.8917,
+        "recall": 0.426
+      }
+    },
+    {
+      "method": "arithmetic: classes still missable",
+      "roc_auc": 0.8512,
+      "roc_auc_still_reachable": 0.8366,
+      "top15": {
+        "precision": 0.8783,
+        "recall": 0.4196
+      }
+    }
+  ],
+  "coefficients": [
+    {
+      "feature": "pct_so_far",
+      "coefficient": -0.5587,
+      "training_mean": 0.7966,
+      "training_spread": 0.1925
+    },
+    {
+      "feature": "pct_last3",
+      "coefficient": -0.0084,
+      "training_mean": 0.7933,
+      "training_spread": 0.2905
+    },
+    {
+      "feature": "trend",
+      "coefficient": -0.012,
+      "training_mean": -0.0111,
+      "training_spread": 0.3252
+    },
+    {
+      "feature": "longest_absence_streak",
+      "coefficient": -0.3157,
+      "training_mean": 1.7587,
+      "training_spread": 1.65
+    },
+    {
+      "feature": "current_absence_streak",
+      "coefficient": 0.0867,
+      "training_mean": 0.4065,
+      "training_spread": 1.0329
+    },
+    {
+      "feature": "late_share",
+      "coefficient": 0.3162,
+      "training_mean": 0.0933,
+      "training_spread": 0.1076
+    },
+    {
+      "feature": "flags_per_10",
+      "coefficient": 0.2003,
+      "training_mean": 0.1274,
+      "training_spread": 0.3228
+    },
+    {
+      "feature": "progress",
+      "coefficient": -0.759,
+      "training_mean": 0.3751,
+      "training_spread": 0.1292
+    },
+    {
+      "feature": "slack_fraction",
+      "coefficient": -2.0878,
+      "training_mean": 0.1626,
+      "training_spread": 0.0776
+    }
+  ],
+  "intercept": -1.0354,
+  "limits": [
+    "Part of the signal is arithmetic: a student who cannot reach 75% will finish below it. The model's added value is on students who still can.",
+    "The synthetic world has no illness, exams or timetable clashes beyond 'absences stick'; real terms are messier.",
+    "The probability is calibrated only against the synthetic terms. Use it to order students for a conversation, never as a verdict.",
+    "Fewer than 4 closed lectures is not enough to say anything, and no estimate is made."
+  ]
+}

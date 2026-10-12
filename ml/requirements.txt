@@ -1,0 +1,10 @@
+# Python 3.13. The saved models (models/*.joblib) are tied to this scikit-learn version:
+# if you change it, run `npm run train` again.
+fastapi==0.143.0
+uvicorn==0.54.0
+scikit-learn==1.9.1
+numpy==2.5.3
+joblib==1.6.0
+# tests
+pytest==9.1.1
+httpx==0.28.1

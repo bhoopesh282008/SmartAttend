@@ -1,0 +1,13 @@
+node_modules/
+dist/
+server/data/
+*.db
+*.db-wal
+*.db-shm
+.env
+.env.local
+.playwright-cli/
+ml/.venv/
+__pycache__/
+*.log
+ml/.pytest_cache/
